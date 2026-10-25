@@ -143,16 +143,24 @@ if __name__ == '__main__':
     except Exception:
         pass
 
-    port = find_available_port(5000)
+    # Read PORT from environment (for Render / cloud deployments) or find available port locally
+    env_port = os.environ.get('PORT')
+    if env_port:
+        port = int(env_port)
+        host = '0.0.0.0'
+    else:
+        port = find_available_port(5000)
+        host = '127.0.0.1'
+
     print("=" * 60)
     print(" LOVELY SHANE'S 22ND BIRTHDAY PHOTOBOOK & LYRIC MONTAGE")
     print("=" * 60)
-    print(f" Starting server on: http://127.0.0.1:{port}")
+    print(f" Starting server on: http://{host}:{port}")
     print(" Press Ctrl+C to stop the server.")
     print("=" * 60)
 
-    # Launch browser automatically
-    if not os.environ.get("WERKZEUG_RUN_MAIN"):
+    # Launch browser automatically only in local development
+    if not os.environ.get("RENDER") and not os.environ.get("PORT") and not os.environ.get("WERKZEUG_RUN_MAIN"):
         threading.Thread(target=open_browser, args=(port,), daemon=True).start()
 
-    app.run(host='127.0.0.1', port=port, debug=False)
+    app.run(host=host, port=port, debug=False)
