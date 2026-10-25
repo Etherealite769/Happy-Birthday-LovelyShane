@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy 22nd Birthday, Lovely Shane • Welcome to Purple Wonderland</title>
+  <meta name="description" content="A purple wonderland photobook montage and synchronized Spotify-style lyric video letter celebrating Lovely Shane's 22nd birthday.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Caveat:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="mode-photobook">
+
+  <!-- Always Allow Audio Unblock Toast / Gentle Invitation -->
+  <div id="audio-unlock-banner" class="audio-unlock-banner hidden" title="Tap to start music and open photobook">
+    <div class="banner-pulse-icon">🎵</div>
+    <div class="banner-text">
+      <strong>Wonderland Melody Ready</strong>
+      <span>Click anywhere to begin music and explore Shane's Photobook</span>
+    </div>
+    <button class="banner-btn" id="banner-play-btn">Play Song</button>
+  </div>
+
+  <!-- Ambient Dynamic Background -->
+  <div id="ambient-backdrop" class="ambient-backdrop"></div>
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+
+  <!-- Navigation / Top Header Bar -->
+  <header class="top-nav">
+    <div class="brand-badge">
+      <span class="gold-icon">✦</span>
+      <span class="brand-title">For Lovely Shane</span>
+      <span class="chapter-pill" id="header-chapter-pill">Chapter I</span>
+    </div>
+
+    <div class="top-actions">
+      <!-- Mode Switcher -->
+      <div class="view-mode-toggle" id="view-mode-toggle">
+        <button class="mode-btn active" data-mode="photobook" id="mode-photobook-btn" title="3D Photobook Mode">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Photobook</span>
+        </button>
+        <button class="mode-btn" data-mode="cinema" id="mode-cinema-btn" title="Cinematic Lyric Video Mode">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span>Cinema Lyric</span>
+        </button>
+        <button class="mode-btn" data-mode="gallery" id="mode-gallery-btn" title="All Photos Gallery">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span>Memories (31)</span>
+        </button>
+      </div>
+
+      <!-- Line Transition Speed (Hidden since all lines appear per stanza) -->
+      <div class="line-pace-wrapper hidden" id="line-pace-wrapper" style="display:none;">
+        <span class="pace-icon">⏳</span>
+        <select id="line-pace-select" class="line-pace-select" title="Adjust Line Transition Speed">
+          <option value="slower" selected>Slow &amp; Dreamy (Active)</option>
+          <option value="extra-slow">Extra Slow &amp; Gentle</option>
+          <option value="normal">Normal Song Pace</option>
+        </select>
+      </div>
+
+      <!-- Always Allow Audio Indicator / Toggle -->
+      <button class="icon-action-btn audio-allowed-btn" id="allow-audio-btn" title="Audio is Always Allowed • Click to Toggle Melody">
+        <span class="audio-live-dot"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        <span class="btn-text-sm" id="allow-audio-text">Audio Allowed</span>
+      </button>
+
+      <!-- Ambient Effects Selector -->
+      <button class="icon-action-btn" id="particles-toggle-btn" title="Toggle Cherry Blossoms & Sparkles">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+      </button>
+
+      <!-- Timing Sync Editor -->
+      <button class="icon-action-btn" id="open-sync-btn" title="Adjust Lyric Timings & Add Stanzas">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span class="btn-text-sm">Sync Tool</span>
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button class="icon-action-btn" id="fullscreen-btn" title="Toggle Fullscreen">
+        <svg id="fs-enter-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        <svg id="fs-exit-icon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SCENE CONTAINER -->
+  <main class="main-stage" id="main-stage">
+
+    <!-- 1. CLOSED BOOK / COVER VIEW (Initial state) -->
+    <div class="book-cover-stage" id="book-cover-stage">
+      <div class="closed-book-wrapper">
+        <div class="closed-book" id="closed-book">
+          <!-- Book Front Cover -->
+          <div class="book-cover-front">
+            <div class="cover-filigree-border"></div>
+            <div class="cover-inner-frame">
+              <div class="cover-ornament top-ornament">❧ ❧ ❧</div>
+              <div class="cover-subtitle">Welcome to Purple Wonderland • Chapter 22</div>
+              <h1 class="cover-title">Lovely Shane</h1>
+              <div class="cover-wax-seal">
+                <div class="seal-inner">22</div>
+              </div>
+              <div class="cover-date">Twenty-Two • Radiant & True</div>
+              <div class="cover-song-tag">♫ Anson Seabra — Welcome to Wonderland</div>
+              <div class="cover-ornament bottom-ornament">❦ ❦ ❦</div>
+
+              <!-- Open Book CTA Button -->
+              <button class="btn-open-book" id="btn-open-book">
+                <span class="btn-glow"></span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Open Photobook & Play Melody</span>
+              </button>
+            </div>
+            <div class="book-ribbon"></div>
+          </div>
+          <!-- Spine & Thickness -->
+          <div class="book-spine"></div>
+          <div class="book-pages-side"></div>
+        </div>
+        <div class="book-shadow"></div>
+      </div>
+    </div>
+
+    <!-- 2. OPEN 3D PHOTOBOOK SPREAD (Interactive reading state) -->
+    <div class="open-book-stage hidden" id="open-book-stage">
+      <div class="book-3d-scene">
+        <div class="book-container" id="book-container">
+
+          <!-- Left Page: Scrapbook Memory Montage -->
+          <div class="book-page left-page" id="left-page">
+            <div class="page-paper left-paper">
+              <div class="paper-texture"></div>
+              <div class="page-corner-ornament top-left"></div>
+              <div class="page-corner-ornament bottom-left"></div>
+
+              <div class="page-header left-header">
+                <span class="scrapbook-tag">Moments in Time</span>
+                <span class="scrapbook-page-no" id="left-page-number">P. 01</span>
+              </div>
+
+              <!-- Collage Photo Canvas -->
+              <div class="photo-montage-container" id="photo-montage-container">
+                <!-- Dynamically populated polaroid & scrap photos -->
+              </div>
+
+              <div class="page-footer left-footer">
+                <span class="page-handwriting-note" id="scrapbook-caption">"Pure sunshine in every frame"</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Book Spine Divider -->
+          <div class="book-center-spine">
+            <div class="spine-fold-shadow"></div>
+            <div class="spine-thread"></div>
+          </div>
+
+          <!-- Right Page: Parchment Letter & Lyric Stanzas -->
+          <div class="book-page right-page" id="right-page">
+            <div class="page-paper right-paper">
+              <div class="paper-texture"></div>
+              <div class="page-corner-ornament top-right"></div>
+              <div class="page-corner-ornament bottom-right"></div>
+
+              <div class="page-header right-header">
+                <span class="chapter-number" id="right-chapter-num">CHAPTER 01</span>
+                <span class="scrapbook-page-no" id="right-page-number">P. 02</span>
+              </div>
+
+              <!-- Lyric Stanza Content: Clean parchment letter layout -->
+              <div class="letter-content-container" id="letter-content-container">
+                <h2 class="stanza-chapter-title" id="stanza-chapter-title">A Quiet Salutation</h2>
+                <div class="stanza-lines-wrapper" id="stanza-lines-wrapper">
+                  <!-- Stanza lines dynamically inserted here -->
+                </div>
+              </div>
+
+              <!-- Stanza Progress Line -->
+              <div class="page-footer right-footer">
+                <div class="stanza-mini-progress">
+                  <div class="mini-progress-fill" id="stanza-mini-fill"></div>
+                </div>
+                <div class="recipient-signature">To Lovely Shane, with all my heart ❦</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Turning Page Layer (Used for flipping animation) -->
+          <div class="turning-page-wrapper hidden" id="turning-page">
+            <div class="turning-page-face turning-front" id="turning-front">
+              <!-- Content duplicated during turn -->
+            </div>
+            <div class="turning-page-face turning-back" id="turning-back">
+              <!-- Content duplicated during turn -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Book Navigation Arrows (Floating beside book) -->
+        <button class="book-nav-arrow arrow-prev" id="book-prev-btn" title="Previous Chapter / Page (Left Arrow)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="book-nav-arrow arrow-next" id="book-next-btn" title="Next Chapter / Page (Right Arrow)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. CINEMATIC LYRIC VIDEO MODE (Widescreen Overlay) -->
+    <div class="cinema-stage hidden" id="cinema-stage">
+      <div class="cinema-backdrop-photo" id="cinema-backdrop-photo"></div>
+      <div class="cinema-vignette"></div>
+
+      <div class="cinema-content">
+        <div class="cinema-photo-showcase" id="cinema-photo-showcase">
+          <!-- Featured Photo with Ken Burns pan/zoom -->
+          <div class="cinema-photo-frame" id="cinema-photo-frame">
+            <img id="cinema-img" src="" alt="Shane memory" class="ken-burns">
+            <div class="cinema-photo-badge" id="cinema-photo-badge">Memory 01 of 31</div>
+          </div>
+        </div>
+
+        <div class="cinema-lyric-box">
+          <div class="cinema-chapter-label" id="cinema-chapter-label">CHAPTER 01</div>
+          <div class="cinema-lyric-lines" id="cinema-lyric-lines">
+            <!-- Animated lyric lines -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. GALLERY WALL (Modal / Grid View) -->
+    <div class="gallery-modal hidden" id="gallery-modal">
+      <div class="gallery-backdrop" id="gallery-backdrop"></div>
+      <div class="gallery-window">
+        <div class="gallery-header">
+          <div class="gallery-title-box">
+            <h3>Gallery of Memories</h3>
+            <p>31 captured moments of Shane’s radiant joy and grace</p>
+          </div>
+          <button class="close-modal-btn" id="close-gallery-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+        <div class="gallery-grid" id="gallery-grid">
+          <!-- All 31 photos populated here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. LIGHTBOX MODAL (Full Resolution Photo Inspection) -->
+    <div class="lightbox-modal hidden" id="lightbox-modal">
+      <div class="lightbox-backdrop" id="lightbox-backdrop"></div>
+      <div class="lightbox-container">
+        <button class="lightbox-close-btn" id="lightbox-close-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+        <div class="lightbox-image-wrapper">
+          <img id="lightbox-img" src="" alt="Shane high resolution memory">
+          <div class="lightbox-caption" id="lightbox-caption">Lovely Shane • Cherished Memory</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. INTERACTIVE SYNC EDITOR MODAL -->
+    <div class="sync-editor-modal hidden" id="sync-editor-modal">
+      <div class="sync-editor-backdrop" id="sync-editor-backdrop"></div>
+      <div class="sync-editor-window">
+        <div class="sync-editor-header">
+          <div>
+            <h3>Lyric & Song Sync Timing Tool</h3>
+            <p>Fine-tune when each stanza appears to match your favorite vocal cues</p>
+          </div>
+          <button class="close-modal-btn" id="close-sync-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="sync-editor-body">
+          <div class="sync-current-time-bar">
+            <span>Audio Current Time:</span>
+            <strong id="sync-live-time">00:00.0</strong>
+            <button class="btn-sm-action" id="sync-play-pause-btn">Play / Pause</button>
+            <button class="btn-sm-action btn-add-highlight" id="sync-add-stanza-btn">➕ Add New Stanza</button>
+          </div>
+
+          <div class="sync-stanzas-list" id="sync-stanzas-list">
+            <!-- Stanza row editors -->
+          </div>
+        </div>
+
+        <div class="sync-editor-footer">
+          <button class="btn-secondary" id="btn-reset-timings">Reset Defaults</button>
+          <button class="btn-primary" id="btn-save-timings">
+            <span id="save-btn-text">Save Changes to Server</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. FINALE BIRTHDAY CELEBRATION OVERLAY -->
+    <div class="finale-celebration hidden" id="finale-celebration">
+      <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+      <div class="finale-card">
+        <div class="finale-crown">👑</div>
+        <h2>Happiest 22nd Birthday, Lovely Shane!</h2>
+        <p class="finale-subtitle">"To me, and to everyone who has ever known your heart, you will always be the loveliest person of all."</p>
+        <div class="finale-actions">
+          <button class="btn-primary" id="finale-replay-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+            <span>Replay From Beginning</span>
+          </button>
+          <button class="btn-secondary" id="finale-gallery-btn">
+            <span>Explore All 31 Photos</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FLOATING BOTTOM AUDIO & TIMELINE BAR -->
+  <footer class="player-bar-container">
+    <div class="player-bar" id="player-bar">
+
+      <!-- Left: Song Info & Stanza Badge -->
+      <div class="player-track-info">
+        <div class="track-vinyl-disc" id="track-vinyl-disc">
+          <div class="disc-grooves"></div>
+          <div class="disc-center"></div>
+        </div>
+        <div class="track-details">
+          <div class="track-title" id="player-track-title">Welcome to Wonderland</div>
+          <div class="track-artist">Anson Seabra • Dedicated to Shane</div>
+          <div class="active-stanza-pill" id="active-stanza-pill">
+            <span class="pulsing-dot"></span>
+            <span id="stanza-pill-text">Chapter 1: A Quiet Salutation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Controls & Scrubber -->
+      <div class="player-controls-center">
+        <div class="player-buttons">
+          <button class="control-btn" id="btn-prev-stanza" title="Previous Stanza (J)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+          </button>
+
+          <button class="control-btn-play" id="btn-play-pause" title="Play / Pause (Spacebar)">
+            <svg id="play-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <svg id="pause-icon" class="hidden" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          </button>
+
+          <button class="control-btn" id="btn-next-stanza" title="Next Stanza (L)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+          </button>
+        </div>
+
+        <!-- Scrubber Progress Bar -->
+        <div class="scrubber-bar-wrapper">
+          <span class="time-label current-time" id="current-time-label">0:00</span>
+          <div class="timeline-slider-box" id="timeline-slider-box">
+            <div class="timeline-rail"></div>
+            <div class="timeline-fill" id="timeline-fill"></div>
+            <div class="timeline-scrubber-handle" id="timeline-handle"></div>
+            <!-- Chapter Markers -->
+            <div class="chapter-markers-container" id="chapter-markers-container">
+              <!-- Dynamically generated points for each stanza -->
+            </div>
+            <!-- Scrub Tooltip -->
+            <div class="scrub-tooltip hidden" id="scrub-tooltip">00:00</div>
+          </div>
+          <span class="time-label total-time" id="total-time-label">3:21</span>
+        </div>
+      </div>
+
+      <!-- Right: Volume & Utilities -->
+      <div class="player-utilities">
+        <!-- Quick Stanza Dropdown -->
+        <select class="stanza-dropdown" id="stanza-dropdown" title="Jump to Stanza">
+          <!-- Populated in JS -->
+        </select>
+
+        <!-- Volume Slider -->
+        <div class="volume-control-box">
+          <button class="icon-vol-btn" id="volume-toggle-btn" title="Mute / Unmute">
+            <svg id="vol-high-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <svg id="vol-mute-icon" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+          </button>
+          <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.05" value="0.9">
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Hidden Native HTML5 Audio Element -->
+  <audio id="audio-player" autoplay preload="auto" src="/media/audio" playsinline></audio>
+
+  <!-- Scripts -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
