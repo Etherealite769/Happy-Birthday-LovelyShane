@@ -563,6 +563,7 @@
       img.src = `/media/photo/${encodeURIComponent(photoName)}`;
       img.alt = `Memory of Shane - ${photoName}`;
       img.loading = 'lazy';
+      img.decoding = 'async';
       imgBox.appendChild(img);
       card.appendChild(imgBox);
 
@@ -696,6 +697,7 @@
       img.src = `/media/photo/${encodeURIComponent(photoName)}`;
       img.alt = photoName;
       img.loading = 'lazy';
+      img.decoding = 'async';
       box.appendChild(img);
       item.appendChild(box);
 
